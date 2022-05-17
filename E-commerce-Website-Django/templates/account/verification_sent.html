@@ -1,0 +1,12 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Verify Your E-mail Address" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Xác thực địa chỉ E-mail" %}</h1>
+
+    <p>{% blocktrans %}Chúng tôi đã gửi e-mail xác thực cho bạn. Nhấp vào liên kết được cung cấp để hoàn tất quá trình đăng ký. Vui lòng liên hệ với chúng tôi nếu bạn không nhận được e-mail xác nhận trong vòng vài phút.{% endblocktrans %}</p>
+
+{% endblock %}

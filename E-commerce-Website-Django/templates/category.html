@@ -1,0 +1,36 @@
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark mt-3 mb-5">
+        <!-- Collapse button -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
+          aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Collapsible content -->
+        <div class="collapse navbar-collapse" id="basicExampleNav">
+
+          <!-- Links -->
+          <ul class="navbar-nav mt-1 mr-auto">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" style="font-size: 18px" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Danh mục
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="nav-link" style="color: black" href="/">Tất cả</a>
+                 {% for cat in categories %}
+                    <a class="nav-link" style="color: black" href="{{cat.get_absolute_url}}">{{cat.category}}</a>
+                 {% endfor %}
+                </div>
+            </li>
+          </ul>
+          <!-- Links -->
+
+          <form class="form-inline" method="get" action="/">
+            <div class="md-form my-0">
+              <input class="form-control mr-sm-2" style="width: 250px" type="text" name="key" placeholder="Nhập tên hoặc danh mục" aria-label="Search">
+                <button class="btn btn-light btn-sm" type="submit" style="font-size: 14px">Tìm kiếm</button>
+            </div>
+          </form>
+        </div>
+        <!-- Collapsible content -->
+
+      </nav>
