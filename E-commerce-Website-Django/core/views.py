@@ -141,7 +141,7 @@ def add_to_cart(request, slug):
             ordered_date=timezone.now(),
         )
         new_order.items.add(ordered_item)
-        messages.info(request, "The item was added to the cart")
+        messages.info(request, "Sản phẩm đã được thêm vào giỏ hàng")
     return redirect("core:order_summary")
 
 
@@ -159,12 +159,12 @@ def remove_from_the_cart(request, slug):
             )[0]
             order.items.remove(order_item)
             order_item.delete()
-            messages.info(request, "This item was removed from your cart")
+            messages.info(request, "Sản phẩm đã bị xóa khỏi giỏ hàng")
         else:
-            messages.info(request, "This item is not in your cart")
+            messages.info(request, "Sản phẩm không nằm trong giỏ hàng")
             return redirect("core:products", slug=slug)
     else:
-        messages.info(request, "You have no order existed")
+        messages.info(request, "Bạn không có đơn hàng")
         return redirect("core:products", slug=slug)
     return redirect("core:order_summary")
 
@@ -187,9 +187,9 @@ def remove_single_from_the_cart(request, slug):
             else:
                 order_item.quantity -= 1
                 order_item.save()
-            messages.info(request, "This quantity was updated")
+            messages.info(request, "Thêm sản phẩm thành công")
         else:
-            messages.info(request, "This item is not in your cart")
+            messages.info(request, "Sản phẩm không có trong giỏ hàng")
     else:
         messages.info(request, "You have no order existed")
         return redirect("core:order_summary")
@@ -210,7 +210,7 @@ class CheckoutView(LoginRequiredMixin, View):
         try:
             order_items = Cart.objects.get(user=self.request.user, ordered=False)
             if order_items.items.count() == 0:
-                messages.info(self.request, "No item in your cart")
+                messages.info(self.request, "Giỏ hàng không có sản phẩm")
                 return redirect("core:item_list")
             context = {
                 'form': form,
@@ -229,7 +229,7 @@ class CheckoutView(LoginRequiredMixin, View):
                 context.update({"default_billing_address": billing_address_qs[0]})
             return render(self.request, 'checkout-page.html', context)
         except ObjectDoesNotExist:
-            messages.info(self.request, "you dont have any order")
+            messages.info(self.request, "Bạn không có đơn hàng")
             return redirect("/")
 
     def post(self, *args, **kwargs):
@@ -251,7 +251,7 @@ class CheckoutView(LoginRequiredMixin, View):
                         order.shipping_address = shipping
                         order.save()
                     else:
-                        messages.info(self.request, "No default shipping")
+                        messages.info(self.request, "Không có địa chỉ mặc định")
                         return redirect("core:checkout")
                 else:
                     shipping_address = form.cleaned_data.get('shipping_address')
@@ -273,7 +273,7 @@ class CheckoutView(LoginRequiredMixin, View):
                         order.shipping_address = shipping
                         order.save()
                     else:
-                        messages.info(self.request, "Please fill in the shipping form properly")
+                        messages.info(self.request, "Vui lòng nhập đầy đủ thông tin")
                         return redirect("core:checkout")
                 # Billing Address Handling
                 same_billing_address = form.cleaned_data.get('same_billing_address')
@@ -299,7 +299,7 @@ class CheckoutView(LoginRequiredMixin, View):
                         order.billing_address = billing
                         order.save()
                     else:
-                        messages.info(self.request, "No default shipping")
+                        messages.info(self.request, "Không có địa chỉ mặc định")
                         return redirect("core:checkout")
                 else:
                     billing_address = form.cleaned_data.get('billing_address')
@@ -321,7 +321,7 @@ class CheckoutView(LoginRequiredMixin, View):
                         order.billing_address = billing
                         order.save()
                     else:
-                        messages.info(self.request, "Please fill the in billing form properly")
+                        messages.info(self.request, "Vui lòng nhập đầy đủ thông tin")
                         return redirect("core:checkout")
                 # Payment Handling
                 payment_option = form.cleaned_data.get('payment_option')
@@ -351,7 +351,7 @@ class AddCouponView(LoginRequiredMixin, View):
             messages.info(self.request, "coupon added")
             return redirect('core:checkout')
         else:
-            messages.error(self.request, "There is no such coupon")
+            messages.error(self.request, "Không có mã khuyến mại")
             return redirect('core:checkout')
 
 
@@ -370,7 +370,7 @@ class PaymentView(LoginRequiredMixin, View):
             order = Cart.objects.get(user=self.request.user, ordered=False)
             user_profile = self.request.user.userprofile
             if order.items.count() == 0:
-                messages.info(self.request, "No item in your cart")
+                messages.info(self.request, "Sản phẩm không có trong giỏ hàng")
                 return redirect("core:item_list")
             if order.billing_address:
                 context = {
@@ -392,10 +392,10 @@ class PaymentView(LoginRequiredMixin, View):
                         })
                 return render(self.request, 'payment.html', context)
             else:
-                messages.warning(self.request, "You have not added a billing address")
+                messages.warning(self.request, "Bạn chưa nhập địa chỉ")
                 return redirect("core:checkout")
         except ObjectDoesNotExist:
-            messages.error(self.request, "You have no active order")
+            messages.error(self.request, "Bạn chưa xác nhận đơn hàng")
             return redirect("core:item_list")
 
     def post(self, *args, **kwargs):
@@ -448,7 +448,7 @@ class PaymentView(LoginRequiredMixin, View):
                     currency="usd",
                     source=stripe_charge_token
                 )
-            messages.success(self.request, "Stripe Payment Successful")
+            messages.success(self.request, "Thanh toán thành công")
             return redirect('core:complete_payment', tran_id=charge['id'], payment_type="S")
 
         except stripe.error.CardError as e:
@@ -459,34 +459,34 @@ class PaymentView(LoginRequiredMixin, View):
 
         except stripe.error.RateLimitError as e:
             # Too many requests made to the API too quickly
-            messages.warning(self.request, "Rate limit error")
+            messages.warning(self.request, "Lỗi giới hạn tỷ lệ")
             return redirect("core:payment", payment_option="Stripe")
 
         except stripe.error.InvalidRequestError as e:
             # Invalid parameters were supplied to Stripe's API
-            messages.warning(self.request, "Invalid parameters")
+            messages.warning(self.request, "Thông số không hợp lệ")
             return redirect("core:payment", payment_option="Stripe")
 
         except stripe.error.AuthenticationError as e:
             # Authentication with Stripe's API failed
             # (maybe you changed API keys recently)
-            messages.warning(self.request, "Not authenticated")
+            messages.warning(self.request, "chưa được xác thực")
             return redirect("core:payment", payment_option="Stripe")
 
         except stripe.error.APIConnectionError as e:
             # Network communication with Stripe failed
-            messages.warning(self.request, "Network error")
+            messages.warning(self.request, "Lỗi mạng")
             return redirect("core:payment", payment_option="Stripe")
 
         except stripe.error.StripeError as e:
             messages.warning(
-                self.request, "Something went wrong. You were not charged. Please try again.")
+                self.request, "Đã xảy ra lỗi. Bạn không bị tính phí. Vui lòng thử lại.")
             return redirect("core:payment", payment_option="Stripe")
 
         except Exception as e:
             # Send an email to ourselves
             messages.warning(
-                self.request, "A serious error occurred. We have been notified.")
+                self.request, "Đã xảy ra lỗi nghiêm trọng. Chúng tôi đã thông báo.")
             return redirect("core:payment", payment_option="Stripe")
 
 
@@ -494,7 +494,7 @@ class RequestRefundView(LoginRequiredMixin, View):
     def get(self, *args, **kwargs):
         orders = Cart.objects.filter(user=self.request.user, ordered=True)
         if not orders.exists():
-            messages.info(self.request, "You have no orders yet, happy shopping !!")
+            messages.info(self.request, "Bạn chưa có đơn đặt hàng nào")
             return redirect('/')
         refund_form = RefundForm()
         context = {
@@ -510,10 +510,10 @@ class RequestRefundView(LoginRequiredMixin, View):
                 is_refund_already_granted = Cart.objects.filter(reference_code=reference_code, refund_granted=True)
                 is_refund_already_requested = Refund.objects.filter(reference_code=reference_code)
                 if is_refund_already_granted.exists():
-                    messages.info(self.request, "Already Refunded")
+                    messages.info(self.request, "Hoàn đơn")
                     return redirect('core:customer_profile')
                 elif is_refund_already_requested.exists():
-                    messages.info(self.request, "Refund already requested for this order")
+                    messages.info(self.request, "Yêu cầu đã được thực hiện cho đơn đặt hàng này")
                     return redirect('core:customer_profile')
                 else:
                     order = Cart.objects.get(reference_code=reference_code)
@@ -521,10 +521,10 @@ class RequestRefundView(LoginRequiredMixin, View):
                     order.save()
                     refund = Refund.objects.create(order=order, **refund_form.cleaned_data)
                     refund.save()
-                    messages.info(self.request, "Your request was successful")
+                    messages.info(self.request, "Thành công")
                     return redirect("core:customer_profile")
             except ObjectDoesNotExist:
-                messages.info(self.request, "No such order with that reference code")
+                messages.info(self.request, "Không tìm thấy đơn hàng")
                 return redirect("core:customer_profile")
 
 
@@ -537,7 +537,7 @@ class CustomerProfileView(LoginRequiredMixin, View):
             }
             return render(self.request, 'customer_profile.html', context)
         else:
-            messages.info(self.request, "You have not yet ordered anything from our site")
+            messages.info(self.request, "Bạn không có đơn hàng")
             return redirect("/")
 
 
@@ -570,10 +570,10 @@ def complete(request):
         payment_data = request.POST
         status = payment_data['status']
         if status == 'VALID':
-            messages.success(request, "SSL Payment Successfull")
+            messages.success(request, "Thành công")
             return redirect('core:complete_payment', tran_id=payment_data['tran_id'], payment_type="SSL")
         elif status == 'FAILED':
-            messages.warning(request, "SSL Payment Failed")
+            messages.warning(request, "Lỗi")
     return render(request, 'complete.html', {})
 
 
